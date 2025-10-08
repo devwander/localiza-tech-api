@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { join } from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { User } from '../model/users.model';
 
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
@@ -19,7 +20,7 @@ export class DBConfigService implements TypeOrmOptionsFactory {
       username: this.configServiceNest.get<string>('DB_USER'),
       password: this.configServiceNest.get<string>('DB_PASSWORD'),
       database: this.configServiceNest.get<string>('DB_NAME'),
-      entities: [join(__dirname, '../**/*.model{.ts,.js}')],
+      entities: [User],
       synchronize: false,
       migrations: [join(__dirname, '../migrations/*{.ts,.js}')],
     };
@@ -35,7 +36,7 @@ export const cliDataSourceOptions: DataSourceOptions = {
   username: cliConfigService.get<string>('DB_USER'),
   password: cliConfigService.get<string>('DB_PASSWORD'),
   database: cliConfigService.get<string>('DB_NAME'),
-  entities: [join(__dirname, '../**/*.model{.ts,.js}')],
+  entities: [User],
   migrations: [join(__dirname, '../migrations/*{.ts,.js}')],
   synchronize: false,
   logging: true,
