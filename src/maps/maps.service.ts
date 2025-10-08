@@ -76,6 +76,16 @@ export class MapsService {
     return map;
   }
 
+  async findOnePublic(id: string): Promise<Map> {
+    const map = await this.mapModel.findById(id).exec();
+
+    if (!map) {
+      throw new NotFoundException(`Map with ID ${id} not found`);
+    }
+
+    return map;
+  }
+
   async update(
     id: string,
     updateMapDto: UpdateMapDto,
