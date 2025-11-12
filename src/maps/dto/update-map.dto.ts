@@ -40,6 +40,11 @@ export class UpdateMapDto {
   @IsOptional()
   type?: string;
 
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
+
   @IsObject()
   @IsOptional()
   metadata?: {

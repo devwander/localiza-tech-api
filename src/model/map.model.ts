@@ -22,6 +22,16 @@ export enum LocalCategory {
   OTHER = 'other',
 }
 
+export enum MapTag {
+  EVENTO = 'evento',
+  FEIRA = 'feira',
+  SHOPPING = 'shopping',
+  CONGRESSO = 'congresso',
+  EXPOSICAO = 'exposicao',
+  FESTIVAL = 'festival',
+  OUTRO = 'outro',
+}
+
 @Schema({ timestamps: true })
 export class Map {
   @Prop({ required: true })
@@ -29,6 +39,9 @@ export class Map {
 
   @Prop({ required: true, default: 'FeatureCollection' })
   type: string;
+
+  @Prop({ type: [String], default: [] })
+  tags: string[];
 
   @Prop({ type: Object })
   metadata: {

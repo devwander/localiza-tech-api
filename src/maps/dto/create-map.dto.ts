@@ -47,6 +47,11 @@ export class CreateMapDto {
   };
 
   @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MapFeatureDto)
   features: MapFeatureDto[];
