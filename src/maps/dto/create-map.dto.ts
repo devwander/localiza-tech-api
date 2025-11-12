@@ -1,4 +1,35 @@
-import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+class GeometryDto {
+  @IsString()
+  type: string;
+
+  @IsArray()
+  coordinates: number[] | number[][] | number[][][];
+}
+
+class MapFeatureDto {
+  @IsString()
+  type: string;
+
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @ValidateNested()
+  @Type(() => GeometryDto)
+  geometry: GeometryDto;
+
+  @IsObject()
+  properties: Record<string, any>;
+}
 
 export class CreateMapDto {
   @IsString()
@@ -16,12 +47,7 @@ export class CreateMapDto {
   };
 
   @IsArray()
-  features: Array<{
-    type: string;
-    geometry: {
-      type: string;
-      coordinates: number[] | number[][] | number[][][];
-    };
-    properties: Record<string, any>;
-  }>;
+  @ValidateNested({ each: true })
+  @Type(() => MapFeatureDto)
+  features: MapFeatureDto[];
 }

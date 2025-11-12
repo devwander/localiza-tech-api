@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 export type MapDocument = Map & Document;
 
@@ -47,8 +47,11 @@ export class Map {
       {
         type: { type: String },
         id: String,
-        geometry: Object,
-        properties: Object,
+        geometry: {
+          type: { type: String },
+          coordinates: MongooseSchema.Types.Mixed,
+        },
+        properties: MongooseSchema.Types.Mixed,
       },
     ],
     required: true,
@@ -68,6 +71,7 @@ export class Map {
       color?: string;
       exhibitor?: string;
       selected?: boolean;
+      storeId?: string; // ID da loja vinculada a este espaço
       [key: string]: any;
     };
   }>;

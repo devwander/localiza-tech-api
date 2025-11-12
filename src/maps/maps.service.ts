@@ -12,6 +12,22 @@ export class MapsService {
   constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
 
   async create(createMapDto: CreateMapDto, userId: string): Promise<Map> {
+    console.log(
+      '[MapsService.create] Received DTO:',
+      JSON.stringify(createMapDto, null, 2),
+    );
+    console.log(
+      '[MapsService.create] Features count:',
+      createMapDto.features?.length,
+    );
+
+    if (createMapDto.features && createMapDto.features.length > 0) {
+      console.log(
+        '[MapsService.create] First feature:',
+        JSON.stringify(createMapDto.features[0], null, 2),
+      );
+    }
+
     const createdMap = new this.mapModel({
       ...createMapDto,
       userId,
@@ -20,7 +36,21 @@ export class MapsService {
         author: userId,
       },
     });
-    return createdMap.save();
+
+    const savedMap = await createdMap.save();
+    console.log(
+      '[MapsService.create] Saved map features:',
+      savedMap.features?.length,
+    );
+
+    if (savedMap.features && savedMap.features.length > 0) {
+      console.log(
+        '[MapsService.create] First saved feature:',
+        JSON.stringify(savedMap.features[0], null, 2),
+      );
+    }
+
+    return savedMap;
   }
 
   async findAll(
@@ -91,12 +121,42 @@ export class MapsService {
     updateMapDto: UpdateMapDto,
     userId: string,
   ): Promise<Map> {
+    console.log(
+      '[MapsService.update] Received DTO:',
+      JSON.stringify(updateMapDto, null, 2),
+    );
+    console.log(
+      '[MapsService.update] Features count:',
+      updateMapDto.features?.length,
+    );
+
+    if (updateMapDto.features && updateMapDto.features.length > 0) {
+      console.log(
+        '[MapsService.update] First feature:',
+        JSON.stringify(updateMapDto.features[0], null, 2),
+      );
+    }
+
     const map = await this.mapModel
       .findOneAndUpdate({ _id: id, userId }, updateMapDto, { new: true })
       .exec();
+
     if (!map) {
       throw new NotFoundException(`Map with ID ${id} not found`);
     }
+
+    console.log(
+      '[MapsService.update] Updated map features:',
+      map.features?.length,
+    );
+
+    if (map.features && map.features.length > 0) {
+      console.log(
+        '[MapsService.update] First updated feature:',
+        JSON.stringify(map.features[0], null, 2),
+      );
+    }
+
     return map;
   }
 

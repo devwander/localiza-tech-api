@@ -41,6 +41,10 @@ class PropertiesDto {
 
   @IsOptional()
   selected?: boolean;
+
+  @IsOptional()
+  @IsString()
+  storeId?: string; // ID da loja vinculada a este espaço
 }
 
 export class CreateElementDto {

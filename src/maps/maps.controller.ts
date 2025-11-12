@@ -31,6 +31,14 @@ export class MapsController {
 
   @Post()
   create(@Body() createMapDto: CreateMapDto, @Request() req: RequestWithUser) {
+    console.log(
+      '[MapsController.create] Raw body received:',
+      JSON.stringify(createMapDto, null, 2),
+    );
+    console.log(
+      '[MapsController.create] Features count:',
+      createMapDto.features?.length,
+    );
     return this.mapsService.create(createMapDto, req.user.userId);
   }
 
@@ -68,6 +76,20 @@ export class MapsController {
     @Body() updateMapDto: UpdateMapDto,
     @Request() req: RequestWithUser,
   ) {
+    console.log(
+      '[MapsController.update] Raw body received:',
+      JSON.stringify(updateMapDto, null, 2),
+    );
+    console.log(
+      '[MapsController.update] Features count:',
+      updateMapDto.features?.length,
+    );
+    if (updateMapDto.features && updateMapDto.features.length > 0) {
+      console.log(
+        '[MapsController.update] First feature:',
+        JSON.stringify(updateMapDto.features[0], null, 2),
+      );
+    }
     return this.mapsService.update(id, updateMapDto, req.user.userId);
   }
 
