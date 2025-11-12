@@ -10,6 +10,7 @@ import { HashService } from './common/hash/hash.service';
 import { DBConfigService } from './config/typeorm';
 import { MapsModule } from './maps/maps.module';
 import { UsersModule } from './users/users.module';
+import { StoresModule } from './stores/stores.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     HashModule,
     AuthModule,
     MapsModule,
+    StoresModule,
   ],
   controllers: [AppController],
   providers: [AppService, HashService],
