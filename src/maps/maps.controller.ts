@@ -71,26 +71,31 @@ export class MapsController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateMapDto: UpdateMapDto,
     @Request() req: RequestWithUser,
   ) {
-    console.log(
-      '[MapsController.update] Raw body received:',
-      JSON.stringify(updateMapDto, null, 2),
-    );
-    console.log(
-      '[MapsController.update] Features count:',
-      updateMapDto.features?.length,
-    );
-    if (updateMapDto.features && updateMapDto.features.length > 0) {
+    try {
       console.log(
-        '[MapsController.update] First feature:',
-        JSON.stringify(updateMapDto.features[0], null, 2),
+        '[MapsController.update] Raw body received:',
+        JSON.stringify(updateMapDto, null, 2),
       );
+      console.log(
+        '[MapsController.update] Features count:',
+        updateMapDto.features?.length,
+      );
+      if (updateMapDto.features && updateMapDto.features.length > 0) {
+        console.log(
+          '[MapsController.update] First feature:',
+          JSON.stringify(updateMapDto.features[0], null, 2),
+        );
+      }
+      return await this.mapsService.update(id, updateMapDto, req.user.userId);
+    } catch (error) {
+      console.error('[MapsController.update] Error:', error);
+      throw error;
     }
-    return this.mapsService.update(id, updateMapDto, req.user.userId);
   }
 
   @Patch(':id/elements/:elementId')

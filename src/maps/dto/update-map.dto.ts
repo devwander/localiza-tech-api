@@ -11,8 +11,9 @@ class GeometryDto {
   @IsString()
   type: string;
 
-  @IsArray()
-  coordinates: number[] | number[][] | number[][][];
+  // Não validar profundamente as coordenadas porque elas podem ter
+  // estruturas diferentes (Point, LineString, Polygon, etc.)
+  coordinates: any;
 }
 
 class MapFeatureDto {
@@ -23,12 +24,36 @@ class MapFeatureDto {
   @IsString()
   id?: string;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => GeometryDto)
-  geometry: GeometryDto;
+  geometry?: GeometryDto;
 
+  @IsOptional()
   @IsObject()
-  properties: Record<string, any>;
+  properties?: Record<string, any>;
+}
+
+class MetadataDto {
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  version?: string;
+
+  @IsOptional()
+  @IsString()
+  author?: string;
+
+  @IsOptional()
+  @IsObject()
+  dimensions?: {
+    width: number;
+    height: number;
+    unit: string;
+  };
 }
 
 export class UpdateMapDto {
@@ -47,10 +72,9 @@ export class UpdateMapDto {
 
   @IsObject()
   @IsOptional()
-  metadata?: {
-    description?: string;
-    version?: string;
-  };
+  @ValidateNested()
+  @Type(() => MetadataDto)
+  metadata?: MetadataDto;
 
   @IsArray()
   @IsOptional()

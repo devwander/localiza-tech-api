@@ -137,27 +137,105 @@ export class MapsService {
       );
     }
 
-    const map = await this.mapModel
-      .findOneAndUpdate({ _id: id, userId }, updateMapDto, { new: true })
-      .exec();
+    try {
+      // Primeiro verifica se o mapa existe
+      const existingMap = await this.mapModel
+        .findOne({ _id: id, userId })
+        .exec();
 
-    if (!map) {
-      throw new NotFoundException(`Map with ID ${id} not found`);
-    }
+      if (!existingMap) {
+        throw new NotFoundException(`Map with ID ${id} not found`);
+      }
 
-    console.log(
-      '[MapsService.update] Updated map features:',
-      map.features?.length,
-    );
+      // Prepara o objeto de atualização apenas com os campos fornecidos
+      const updateData: Partial<Map> = {};
+      
+      if (updateMapDto.name !== undefined) {
+        updateData.name = updateMapDto.name;
+      }
+      
+      if (updateMapDto.type !== undefined) {
+        updateData.type = updateMapDto.type;
+      }
+      
+      if (updateMapDto.tags !== undefined) {
+        updateData.tags = updateMapDto.tags;
+      }
+      
+      if (updateMapDto.metadata !== undefined) {
+        updateData.metadata = {
+          ...existingMap.metadata,
+          ...updateMapDto.metadata,
+        };
+      }
+      
+      if (updateMapDto.features !== undefined) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        updateData.features = updateMapDto.features as any;
+      }
 
-    if (map.features && map.features.length > 0) {
       console.log(
-        '[MapsService.update] First updated feature:',
-        JSON.stringify(map.features[0], null, 2),
+        '[MapsService.update] Update data:',
+        JSON.stringify(updateData, null, 2),
       );
-    }
 
-    return map;
+      // Atualiza o mapa
+      const map = await this.mapModel
+        .findOneAndUpdate(
+          { _id: id, userId },
+          { $set: updateData },
+          { new: true, runValidators: true },
+        )
+        .exec();
+
+      if (!map) {
+        throw new NotFoundException(`Map with ID ${id} not found`);
+      }
+
+      console.log(
+        '[MapsService.update] Updated map features:',
+        map.features?.length,
+      );
+
+      if (map.features && map.features.length > 0) {
+        console.log(
+          '[MapsService.update] First updated feature:',
+          JSON.stringify(map.features[0], null, 2),
+        );
+      }
+
+      return map;
+    } catch (error: any) {
+      console.error('[MapsService.update] Error updating map:', error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.error('[MapsService.update] Error name:', error?.name);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.error('[MapsService.update] Error message:', error?.message);
+      
+      // Log detalhado do erro se for erro de validação do MongoDB
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.name === 'ValidationError') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        console.error('[MapsService.update] Validation errors:', error.errors);
+      }
+      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.name === 'CastError') {
+        console.error('[MapsService.update] Cast error details:', {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          path: error.path,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          value: error.value,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          kind: error.kind,
+        });
+      }
+      
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   async remove(id: string, userId: string): Promise<Map> {
