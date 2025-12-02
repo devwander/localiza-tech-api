@@ -200,6 +200,24 @@ export class MapsService {
       }
 
       if (updateMapDto.features !== undefined) {
+        console.log(
+          '[MapsService.update] Features from DTO:',
+          updateMapDto.features.length,
+        );
+        if (updateMapDto.features.length > 0) {
+          console.log(
+            '[MapsService.update] First feature from DTO:',
+            JSON.stringify(updateMapDto.features[0], null, 2),
+          );
+          console.log(
+            '[MapsService.update] First feature geometry:',
+            updateMapDto.features[0].geometry,
+          );
+          console.log(
+            '[MapsService.update] First feature coordinates:',
+            updateMapDto.features[0].geometry?.coordinates,
+          );
+        }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         updateData.features = updateMapDto.features as any;
       }
@@ -208,6 +226,17 @@ export class MapsService {
         '[MapsService.update] Update data:',
         JSON.stringify(updateData, null, 2),
       );
+
+      console.log(
+        '[MapsService.update] Update data features:',
+        updateData.features?.length,
+      );
+      if (updateData.features && updateData.features.length > 0) {
+        console.log(
+          '[MapsService.update] First feature in updateData:',
+          JSON.stringify(updateData.features[0], null, 2),
+        );
+      }
 
       // Atualiza o mapa
       const map = await this.mapModel
@@ -229,8 +258,16 @@ export class MapsService {
 
       if (map.features && map.features.length > 0) {
         console.log(
-          '[MapsService.update] First updated feature:',
+          '[MapsService.update] First saved feature:',
           JSON.stringify(map.features[0], null, 2),
+        );
+        console.log(
+          '[MapsService.update] First saved feature geometry:',
+          map.features[0].geometry,
+        );
+        console.log(
+          '[MapsService.update] First saved feature coordinates:',
+          map.features[0].geometry?.coordinates,
         );
       }
 

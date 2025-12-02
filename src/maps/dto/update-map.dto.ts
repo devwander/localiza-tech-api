@@ -7,16 +7,15 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class GeometryDto {
+export class GeometryDto {
   @IsString()
   type: string;
 
-  // Não validar profundamente as coordenadas porque elas podem ter
-  // estruturas diferentes (Point, LineString, Polygon, etc.)
+  @IsArray()
   coordinates: any;
 }
 
-class MapFeatureDto {
+export class MapFeatureDto {
   @IsString()
   type: string;
 
@@ -24,17 +23,15 @@ class MapFeatureDto {
   @IsString()
   id?: string;
 
-  @IsOptional()
   @ValidateNested()
   @Type(() => GeometryDto)
-  geometry?: GeometryDto;
+  geometry: GeometryDto;
 
-  @IsOptional()
   @IsObject()
-  properties?: Record<string, any>;
+  properties: Record<string, any>;
 }
 
-class MetadataDto {
+export class MetadataDto {
   @IsOptional()
   @IsString()
   description?: string;

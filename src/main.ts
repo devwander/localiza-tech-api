@@ -2,26 +2,30 @@ import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'node:path';
 import * as express from 'express';
+import { join } from 'node:path';
 import { AppModule } from './app.module';
 
-const allowedOrigins = new Set(['http://localhost:5173', 'http://127.0.0.1:5173']);
+const allowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]);
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  
+
   // Aumentar limite do body parser para aceitar imagens base64 (10MB)
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      whitelist: true,
+      whitelist: false, // Mudado para false para não remover campos extras
       forbidNonWhitelisted: false,
       transformOptions: {
         enableImplicitConversion: true,
+        exposeDefaultValues: true,
       },
     }),
   );

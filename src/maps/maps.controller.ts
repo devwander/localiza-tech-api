@@ -91,20 +91,6 @@ export class MapsController {
     @Request() req: RequestWithUser,
   ) {
     try {
-      console.log(
-        '[MapsController.update] Raw body received:',
-        JSON.stringify(updateMapDto, null, 2),
-      );
-      console.log(
-        '[MapsController.update] Features count:',
-        updateMapDto.features?.length,
-      );
-      if (updateMapDto.features && updateMapDto.features.length > 0) {
-        console.log(
-          '[MapsController.update] First feature:',
-          JSON.stringify(updateMapDto.features[0], null, 2),
-        );
-      }
       return await this.mapsService.update(id, updateMapDto, req.user.userId);
     } catch (error) {
       console.error('[MapsController.update] Error:', error);

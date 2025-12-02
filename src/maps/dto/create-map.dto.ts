@@ -7,15 +7,15 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class GeometryDto {
+export class GeometryDto {
   @IsString()
   type: string;
 
   @IsArray()
-  coordinates: number[] | number[][] | number[][][];
+  coordinates: any;
 }
 
-class MapFeatureDto {
+export class MapFeatureDto {
   @IsString()
   type: string;
 
