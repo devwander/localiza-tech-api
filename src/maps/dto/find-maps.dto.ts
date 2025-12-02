@@ -7,6 +7,10 @@ export class FindMapsDto {
   query?: string;
 
   @IsOptional()
+  @IsString()
+  tags?: string;
+
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   page?: number;

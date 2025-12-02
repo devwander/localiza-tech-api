@@ -53,9 +53,34 @@ export class MapsService {
     return savedMap;
   }
 
+  async findAllTags(userId: string): Promise<string[]> {
+    console.log('[MapsService.findAllTags] Finding tags for userId:', userId);
+
+    const maps = await this.mapModel.find({ userId }).select('tags').exec();
+    console.log('[MapsService.findAllTags] Maps found:', maps.length);
+    console.log(
+      '[MapsService.findAllTags] Maps data:',
+      JSON.stringify(maps, null, 2),
+    );
+
+    const allTags = maps.flatMap((map) => map.tags || []);
+    console.log('[MapsService.findAllTags] All tags (before unique):', allTags);
+
+    const uniqueTags = [...new Set(allTags)].filter((tag) => tag && tag.trim());
+    console.log('[MapsService.findAllTags] Unique tags:', uniqueTags);
+
+    return uniqueTags.sort();
+  }
+
   async findAll(
     userId: string,
-    { query, page = 1, limit = 10, order = 'alphabetical' }: FindMapsDto = {},
+    {
+      query,
+      tags,
+      page = 1,
+      limit = 10,
+      order = 'alphabetical',
+    }: FindMapsDto = {},
   ): Promise<{
     data: Map[];
     total: number;
@@ -67,6 +92,11 @@ export class MapsService {
 
     if (query) {
       filter.name = { $regex: query, $options: 'i' };
+    }
+
+    if (tags) {
+      // Busca case-insensitive por tag dentro do array
+      filter.tags = { $elemMatch: { $regex: new RegExp(`^${tags}$`, 'i') } };
     }
 
     let sortBy: Record<string, SortOrder> = {};
@@ -149,26 +179,26 @@ export class MapsService {
 
       // Prepara o objeto de atualização apenas com os campos fornecidos
       const updateData: Partial<Map> = {};
-      
+
       if (updateMapDto.name !== undefined) {
         updateData.name = updateMapDto.name;
       }
-      
+
       if (updateMapDto.type !== undefined) {
         updateData.type = updateMapDto.type;
       }
-      
+
       if (updateMapDto.tags !== undefined) {
         updateData.tags = updateMapDto.tags;
       }
-      
+
       if (updateMapDto.metadata !== undefined) {
         updateData.metadata = {
           ...existingMap.metadata,
           ...updateMapDto.metadata,
         };
       }
-      
+
       if (updateMapDto.features !== undefined) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         updateData.features = updateMapDto.features as any;
@@ -211,14 +241,14 @@ export class MapsService {
       console.error('[MapsService.update] Error name:', error?.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       console.error('[MapsService.update] Error message:', error?.message);
-      
+
       // Log detalhado do erro se for erro de validação do MongoDB
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.name === 'ValidationError') {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         console.error('[MapsService.update] Validation errors:', error.errors);
       }
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.name === 'CastError') {
         console.error('[MapsService.update] Cast error details:', {
@@ -230,7 +260,7 @@ export class MapsService {
           kind: error.kind,
         });
       }
-      
+
       if (error instanceof NotFoundException) {
         throw error;
       }

@@ -42,14 +42,22 @@ export class MapsController {
     return this.mapsService.create(createMapDto, req.user.userId);
   }
 
-  @Get()
-  findAll(@Query() findMapsDto: FindMapsDto, @Request() req: RequestWithUser) {
-    return this.mapsService.findAll(req.user.userId, findMapsDto);
+  @Get('tags')
+  findAllTags(@Request() req: RequestWithUser) {
+    console.log(
+      '[MapsController.findAllTags] Request from userId:',
+      req.user.userId,
+    );
+    return this.mapsService.findAllTags(req.user.userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
-    return this.mapsService.findOne(id, req.user.userId);
+  @Get()
+  findAll(@Query() findMapsDto: FindMapsDto, @Request() req: RequestWithUser) {
+    console.log(
+      '[MapsController.findAll] Finding maps for user:',
+      req.user.userId,
+    );
+    return this.mapsService.findAll(req.user.userId, findMapsDto);
   }
 
   @Get(':id/elements')
@@ -59,6 +67,12 @@ export class MapsController {
     @Request() req: RequestWithUser,
   ) {
     return this.mapsService.searchElements(id, req.user.userId, query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
+    console.log('[MapsController.findOne] Finding map with id:', id);
+    return this.mapsService.findOne(id, req.user.userId);
   }
 
   @Post(':id/elements')
