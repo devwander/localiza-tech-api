@@ -98,6 +98,11 @@ export class MapsController {
     }
   }
 
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req: RequestWithUser) {
+    return this.mapsService.remove(id, req.user.userId);
+  }
+
   @Patch(':id/elements/:elementId')
   updateElement(
     @Param('id') id: string,
@@ -111,11 +116,6 @@ export class MapsController {
       elementId,
       updateElement,
     );
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: RequestWithUser) {
-    return this.mapsService.remove(id, req.user.userId);
   }
 
   @Delete(':id/elements/:elementId')
