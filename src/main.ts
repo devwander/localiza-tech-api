@@ -39,6 +39,9 @@ async function bootstrap() {
 
   app.enableCors(corsOptions);
 
+  // Adicionar prefixo global para todas as rotas
+  app.setGlobalPrefix('api');
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
