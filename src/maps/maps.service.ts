@@ -12,22 +12,6 @@ export class MapsService {
   constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
 
   async create(createMapDto: CreateMapDto, userId: string): Promise<Map> {
-    console.log(
-      '[MapsService.create] Received DTO:',
-      JSON.stringify(createMapDto, null, 2),
-    );
-    console.log(
-      '[MapsService.create] Features count:',
-      createMapDto.features?.length,
-    );
-
-    if (createMapDto.features && createMapDto.features.length > 0) {
-      console.log(
-        '[MapsService.create] First feature:',
-        JSON.stringify(createMapDto.features[0], null, 2),
-      );
-    }
-
     const createdMap = new this.mapModel({
       ...createMapDto,
       userId,
@@ -38,37 +22,13 @@ export class MapsService {
     });
 
     const savedMap = await createdMap.save();
-    console.log(
-      '[MapsService.create] Saved map features:',
-      savedMap.features?.length,
-    );
-
-    if (savedMap.features && savedMap.features.length > 0) {
-      console.log(
-        '[MapsService.create] First saved feature:',
-        JSON.stringify(savedMap.features[0], null, 2),
-      );
-    }
-
     return savedMap;
   }
 
   async findAllTags(userId: string): Promise<string[]> {
-    console.log('[MapsService.findAllTags] Finding tags for userId:', userId);
-
     const maps = await this.mapModel.find({ userId }).select('tags').exec();
-    console.log('[MapsService.findAllTags] Maps found:', maps.length);
-    console.log(
-      '[MapsService.findAllTags] Maps data:',
-      JSON.stringify(maps, null, 2),
-    );
-
     const allTags = maps.flatMap((map) => map.tags || []);
-    console.log('[MapsService.findAllTags] All tags (before unique):', allTags);
-
     const uniqueTags = [...new Set(allTags)].filter((tag) => tag && tag.trim());
-    console.log('[MapsService.findAllTags] Unique tags:', uniqueTags);
-
     return uniqueTags.sort();
   }
 
@@ -151,22 +111,6 @@ export class MapsService {
     updateMapDto: UpdateMapDto,
     userId: string,
   ): Promise<Map> {
-    console.log(
-      '[MapsService.update] Received DTO:',
-      JSON.stringify(updateMapDto, null, 2),
-    );
-    console.log(
-      '[MapsService.update] Features count:',
-      updateMapDto.features?.length,
-    );
-
-    if (updateMapDto.features && updateMapDto.features.length > 0) {
-      console.log(
-        '[MapsService.update] First feature:',
-        JSON.stringify(updateMapDto.features[0], null, 2),
-      );
-    }
-
     try {
       // Primeiro verifica se o mapa existe
       const existingMap = await this.mapModel
@@ -200,75 +144,22 @@ export class MapsService {
       }
 
       if (updateMapDto.features !== undefined) {
-        console.log(
-          '[MapsService.update] Features from DTO:',
-          updateMapDto.features.length,
-        );
-        if (updateMapDto.features.length > 0) {
-          console.log(
-            '[MapsService.update] First feature from DTO:',
-            JSON.stringify(updateMapDto.features[0], null, 2),
-          );
-          console.log(
-            '[MapsService.update] First feature geometry:',
-            updateMapDto.features[0].geometry,
-          );
-          console.log(
-            '[MapsService.update] First feature coordinates:',
-            updateMapDto.features[0].geometry?.coordinates,
-          );
-        }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         updateData.features = updateMapDto.features as any;
       }
 
-      console.log(
-        '[MapsService.update] Update data:',
-        JSON.stringify(updateData, null, 2),
-      );
-
-      console.log(
-        '[MapsService.update] Update data features:',
-        updateData.features?.length,
-      );
-      if (updateData.features && updateData.features.length > 0) {
-        console.log(
-          '[MapsService.update] First feature in updateData:',
-          JSON.stringify(updateData.features[0], null, 2),
-        );
+      // Atualiza o mapa usando findOne + save para garantir que Mixed types sejam salvos
+      Object.assign(existingMap, updateData);
+      
+      // Marcar features como modificado para garantir que Mongoose salve corretamente
+      if (updateData.features) {
+        existingMap.markModified('features');
       }
-
-      // Atualiza o mapa
-      const map = await this.mapModel
-        .findOneAndUpdate(
-          { _id: id, userId },
-          { $set: updateData },
-          { new: true, runValidators: true },
-        )
-        .exec();
+      
+      const map = await existingMap.save();
 
       if (!map) {
         throw new NotFoundException(`Map with ID ${id} not found`);
-      }
-
-      console.log(
-        '[MapsService.update] Updated map features:',
-        map.features?.length,
-      );
-
-      if (map.features && map.features.length > 0) {
-        console.log(
-          '[MapsService.update] First saved feature:',
-          JSON.stringify(map.features[0], null, 2),
-        );
-        console.log(
-          '[MapsService.update] First saved feature geometry:',
-          map.features[0].geometry,
-        );
-        console.log(
-          '[MapsService.update] First saved feature coordinates:',
-          map.features[0].geometry?.coordinates,
-        );
       }
 
       return map;
@@ -312,25 +203,11 @@ export class MapsService {
     // Versão pública do update que não requer autenticação
     // Usado apenas para migração/correção de dados
     try {
-      console.log('[updatePublic] Starting update for map:', id);
-      console.log('[updatePublic] Features count:', updateMapDto.features?.length);
-      
-      if (updateMapDto.features && updateMapDto.features.length > 0) {
-        console.log('[updatePublic] First 3 features:', 
-          updateMapDto.features.slice(0, 3).map(f => ({
-            id: f.id,
-            storeId: f.properties.storeId
-          }))
-        );
-      }
-
       const existingMap = await this.mapModel.findById(id).exec();
 
       if (!existingMap) {
         throw new NotFoundException(`Map with ID ${id} not found`);
       }
-
-      console.log('[updatePublic] Existing map found, updating...');
 
       // Usar updateOne ao invés de findByIdAndUpdate para forçar o update
       const result = await this.mapModel.updateOne(
@@ -338,21 +215,12 @@ export class MapsService {
         { $set: { features: updateMapDto.features } }
       ).exec();
 
-      console.log('[updatePublic] Update result:', result);
-
       // Buscar o mapa atualizado
       const updatedMap = await this.mapModel.findById(id).exec();
       
       if (!updatedMap) {
         throw new NotFoundException(`Map with ID ${id} not found after update`);
       }
-
-      console.log('[updatePublic] Map updated, first 3 features after update:', 
-        updatedMap.features.slice(0, 3).map(f => ({
-          id: f.id,
-          storeId: (f.properties as any).storeId
-        }))
-      );
 
       return updatedMap;
     } catch (error) {
