@@ -52,18 +52,19 @@ export class StoresService {
     // Atualizar o feature do mapa com o storeId
     const updatedFeatures = map.features.map(f => {
       if (f.id === createStoreDto.featureId) {
-        return {
+        const updatedFeature = {
           ...f,
           properties: {
             ...f.properties,
             storeId: (savedStore._id as any).toString(),
           },
         };
+        return updatedFeature;
       }
       return f;
     });
 
-    await this.mapsService.update(
+    const updatedMap = await this.mapsService.update(
       createStoreDto.mapId,
       { features: updatedFeatures },
       userId
@@ -77,7 +78,6 @@ export class StoresService {
       query,
       mapId,
       category,
-      floor,
       page = 1,
       limit = 10,
     } = findStoresDto;
@@ -94,10 +94,6 @@ export class StoresService {
 
     if (category) {
       filter.category = category;
-    }
-
-    if (floor) {
-      filter.floor = floor;
     }
 
     if (query) {

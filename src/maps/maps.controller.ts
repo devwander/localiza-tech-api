@@ -31,32 +31,16 @@ export class MapsController {
 
   @Post()
   create(@Body() createMapDto: CreateMapDto, @Request() req: RequestWithUser) {
-    console.log(
-      '[MapsController.create] Raw body received:',
-      JSON.stringify(createMapDto, null, 2),
-    );
-    console.log(
-      '[MapsController.create] Features count:',
-      createMapDto.features?.length,
-    );
     return this.mapsService.create(createMapDto, req.user.userId);
   }
 
   @Get('tags')
   findAllTags(@Request() req: RequestWithUser) {
-    console.log(
-      '[MapsController.findAllTags] Request from userId:',
-      req.user.userId,
-    );
     return this.mapsService.findAllTags(req.user.userId);
   }
 
   @Get()
   findAll(@Query() findMapsDto: FindMapsDto, @Request() req: RequestWithUser) {
-    console.log(
-      '[MapsController.findAll] Finding maps for user:',
-      req.user.userId,
-    );
     return this.mapsService.findAll(req.user.userId, findMapsDto);
   }
 
@@ -71,7 +55,6 @@ export class MapsController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
-    console.log('[MapsController.findOne] Finding map with id:', id);
     return this.mapsService.findOne(id, req.user.userId);
   }
 

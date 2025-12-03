@@ -55,34 +55,21 @@ export class StoresController {
 
   @Post('upload-logo-base64')
   async uploadLogoBase64(@Body('image') base64Image: string, @Request() req) {
-    console.log('=== DEBUG UPLOAD LOGO ===');
-    console.log('User do request:', req.user);
-    console.log('Imagem recebida:', base64Image ? `Base64 string (${base64Image.length} chars)` : 'VAZIO');
-    
     if (!base64Image) {
-      console.log('Erro: Imagem base64 não fornecida');
       throw new BadRequestException('Imagem base64 não fornecida');
     }
 
     try {
-      console.log('Processando upload...');
       const logoUrl = await this.uploadService.uploadBase64Image(base64Image);
-      console.log('Upload concluído! URL:', logoUrl);
-      console.log('========================');
       return { url: logoUrl };
     } catch (error) {
       console.error('Erro no upload:', error.message);
-      console.log('========================');
       throw new BadRequestException(error.message);
     }
   }
 
   @Post()
   create(@Body() createStoreDto: CreateStoreDto, @Request() req) {
-    console.log('=== DEBUG CREATE STORE ===');
-    console.log('Dados recebidos:', JSON.stringify(createStoreDto, null, 2));
-    console.log('User ID:', req.user.userId);
-    console.log('========================');
     return this.storesService.create(createStoreDto, req.user.userId);
   }
 

@@ -22,8 +22,8 @@ export class Store {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
-  floor: string;
+  @Prop({ required: false })
+  floor?: string;
 
   @Prop({ required: true, enum: StoreCategory })
   category: StoreCategory;

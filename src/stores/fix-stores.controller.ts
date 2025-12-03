@@ -130,7 +130,6 @@ export class FixStoresController {
 
         // Adicionar storeId na feature
         const storeIdString = (store._id as any).toString();
-        console.log('[FixStores] Adding storeId:', storeIdString, 'to feature:', store.featureId);
         
         // Converter map.features para objetos simples (POJO) para evitar problemas com Mongoose
         const featuresArray = JSON.parse(JSON.stringify(map.features));
@@ -138,7 +137,6 @@ export class FixStoresController {
         const updatedFeatures = featuresArray.map(f => {
           // Comparar como string para garantir match
           if (f.id?.toString() === store.featureId?.toString()) {
-            console.log('[FixStores] MATCH! Updating feature:', f.id);
             return {
               ...f,
               properties: {
@@ -150,22 +148,8 @@ export class FixStoresController {
           return f;
         });
 
-        const featureWithStore = updatedFeatures.find(f => f.id?.toString() === store.featureId?.toString());
-        console.log('[FixStores] Feature after update in array:', {
-          id: featureWithStore?.id,
-          storeId: featureWithStore?.properties?.storeId
-        });
-
-        console.log('[FixStores] Sending to updatePublic, features with storeId:', 
-          updatedFeatures.filter(f => f.properties?.storeId).map(f => ({ 
-            id: f.id, 
-            storeId: f.properties.storeId 
-          }))
-        );
-
         // Atualizar o mapa (força update sem userId)
         const updateDto = { features: updatedFeatures as any };
-        console.log('[FixStores] Update DTO type:', typeof updateDto, 'features type:', typeof updateDto.features);
         await this.mapsService.updatePublic(store.mapId, updateDto);
 
         results.push({

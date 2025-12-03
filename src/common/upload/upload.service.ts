@@ -48,8 +48,6 @@ export class UploadService {
   }
 
   async uploadBase64Image(base64String: string): Promise<string> {
-    console.log('UploadService: Iniciando processamento base64');
-    
     // Remover prefixo data:image/...;base64,
     const matches = base64String.match(/^data:image\/(\w+);base64,(.+)$/);
     if (!matches) {
@@ -58,10 +56,7 @@ export class UploadService {
     }
 
     const [, extension, data] = matches;
-    console.log(`UploadService: Extensão detectada: ${extension}`);
-    
     const buffer = Buffer.from(data, 'base64');
-    console.log(`UploadService: Buffer criado, tamanho: ${buffer.length} bytes`);
 
     // Validar tamanho
     const maxSize = 3 * 1024 * 1024; // 3MB
@@ -72,22 +67,18 @@ export class UploadService {
 
     // Criar diretório se não existir
     if (!existsSync(this.uploadDir)) {
-      console.log(`UploadService: Criando diretório ${this.uploadDir}`);
       await mkdir(this.uploadDir, { recursive: true });
     }
 
     // Gerar nome único para o arquivo
     const fileName = `${uuidv4()}.${extension}`;
     const filePath = join(this.uploadDir, fileName);
-    console.log(`UploadService: Salvando em ${filePath}`);
 
     // Salvar arquivo
     await writeFile(filePath, buffer);
-    console.log('UploadService: Arquivo salvo com sucesso');
 
     // Retornar URL relativa
     const url = `/uploads/stores/${fileName}`;
-    console.log(`UploadService: URL gerada: ${url}`);
     return url;
   }
 }
