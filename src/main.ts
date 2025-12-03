@@ -6,11 +6,6 @@ import * as express from 'express';
 import { join } from 'node:path';
 import { AppModule } from './app.module';
 
-const allowedOrigins = new Set([
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-]);
-
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -35,14 +30,10 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
+  // Configurar CORS baseado na variável de ambiente
+  const corsOrigin = process.env.CORS_ORIGIN || '*';
   const corsOptions: CorsOptions = {
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.has(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: corsOrigin === '*' ? true : corsOrigin.split(','),
     credentials: true,
   };
 
