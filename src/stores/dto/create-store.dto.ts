@@ -26,10 +26,6 @@ export class CreateStoreDto {
   name: string;
 
   @IsNotEmpty()
-  @IsString()
-  floor: string;
-
-  @IsNotEmpty()
   @IsEnum(StoreCategory)
   category: StoreCategory;
 

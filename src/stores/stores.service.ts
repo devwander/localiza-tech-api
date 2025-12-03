@@ -78,7 +78,6 @@ export class StoresService {
       query,
       mapId,
       category,
-      floor,
       page = 1,
       limit = 10,
     } = findStoresDto;
@@ -95,10 +94,6 @@ export class StoresService {
 
     if (category) {
       filter.category = category;
-    }
-
-    if (floor) {
-      filter.floor = floor;
     }
 
     if (query) {
