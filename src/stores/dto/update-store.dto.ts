@@ -31,6 +31,10 @@ export class UpdateStoreDto {
   featureId?: string;
 
   @IsOptional()
+  @IsString()
+  mapId?: string;
+
+  @IsOptional()
   @IsObject()
   location?: {
     x: number;

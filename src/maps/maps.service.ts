@@ -305,6 +305,62 @@ export class MapsService {
     }
   }
 
+  async updatePublic(
+    id: string,
+    updateMapDto: UpdateMapDto,
+  ): Promise<Map> {
+    // Versão pública do update que não requer autenticação
+    // Usado apenas para migração/correção de dados
+    try {
+      console.log('[updatePublic] Starting update for map:', id);
+      console.log('[updatePublic] Features count:', updateMapDto.features?.length);
+      
+      if (updateMapDto.features && updateMapDto.features.length > 0) {
+        console.log('[updatePublic] First 3 features:', 
+          updateMapDto.features.slice(0, 3).map(f => ({
+            id: f.id,
+            storeId: f.properties.storeId
+          }))
+        );
+      }
+
+      const existingMap = await this.mapModel.findById(id).exec();
+
+      if (!existingMap) {
+        throw new NotFoundException(`Map with ID ${id} not found`);
+      }
+
+      console.log('[updatePublic] Existing map found, updating...');
+
+      // Usar updateOne ao invés de findByIdAndUpdate para forçar o update
+      const result = await this.mapModel.updateOne(
+        { _id: id },
+        { $set: { features: updateMapDto.features } }
+      ).exec();
+
+      console.log('[updatePublic] Update result:', result);
+
+      // Buscar o mapa atualizado
+      const updatedMap = await this.mapModel.findById(id).exec();
+      
+      if (!updatedMap) {
+        throw new NotFoundException(`Map with ID ${id} not found after update`);
+      }
+
+      console.log('[updatePublic] Map updated, first 3 features after update:', 
+        updatedMap.features.slice(0, 3).map(f => ({
+          id: f.id,
+          storeId: (f.properties as any).storeId
+        }))
+      );
+
+      return updatedMap;
+    } catch (error) {
+      console.error('[MapsService.updatePublic] Error:', error);
+      throw error;
+    }
+  }
+
   async remove(id: string, userId: string): Promise<Map> {
     const map = await this.mapModel
       .findOneAndDelete({ _id: id, userId })
